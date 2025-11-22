@@ -1,18 +1,18 @@
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 import requests
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-
+import pandas as pd
 import schedule
 from findmybus.utils.Connector import Connector
-from findmybus.utils.Models.api.models import BusPositionAdapter
+from findmybus.utils.Models.api.models import BusPosition, BusPositionAdapter
 
 
 class Worker:
     def __init__(self):
         self.dbConnector = Connector()
 
-    def get_buses_position(self):
+    def get_buses_position(self) -> TypeAdapter[list[BusPosition]]:
         now = datetime.now(ZoneInfo('America/Sao_Paulo'))
         last_minute = now - timedelta(minutes=1)
         try:
@@ -30,14 +30,27 @@ class Worker:
         except Exception as e:
             raise Exception(f"An error happened. Message: {e}")
 
-    
+    def remove_duplicate_dict(self, list_dict: list[dict[str, str]]) -> list[dict[str, str]]:
+        data = pd.DataFrame(list_dict)
+        return data.drop_duplicates(subset=['order']).to_dict(orient="records")
 
-    def run(self):
-        return self.get_buses_position()
 
+# import logging
+# from logging.config import fileConfig
+
+# import os
+# CONFIG_FILE = 'logging.ini'
+# LOG_DIR = 'log'
+# os.makedirs(LOG_DIR, exist_ok=True)
+# log_filename = f"{LOG_DIR}/execution_{datetime.now().strftime('%Y%m%d%H%M%S')}.log"
+
+# fileConfig(CONFIG_FILE, 
+#            defaults={'log_file_path': log_filename})
+# logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     worker = Worker()
-    response = worker.run()
-    # schedule.every(2).minutes.do(worker.run())
+    responseAdapter = worker.get_buses_position()
+    responseDict = worker.remove_duplicate_dict([obj.model_dump() for obj in responseAdapter])
+    worker.dbConnector.upinsert(responseDict)
     print("Should run just once")

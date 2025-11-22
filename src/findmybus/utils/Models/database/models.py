@@ -9,7 +9,7 @@ class Positions(Base):
 
     order: Mapped[str] = mapped_column(primary_key=True)
     latitude: Mapped[str]
-    longitude: Mapped[float]
+    longitude: Mapped[str]
     dateTime: Mapped[str]
     velocity: Mapped[str]
     line: Mapped[str]
