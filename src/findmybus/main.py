@@ -1,4 +1,4 @@
-from findmybus.utils.database import Connector
+from findmybus.utils.Connector import Connector
 
 
 if __name__ == "__main__":
