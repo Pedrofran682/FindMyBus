@@ -1,15 +1,15 @@
 from pydantic import BaseModel, Field
+from pydantic import TypeAdapter
 
 class BusPosition(BaseModel):
-    ordem: str = Field(alias="ordem")
-    latitude: str = Field(alias="latitude")
-    longitude: str = Field(alias="longitude")
-    datahora: int = Field(alias="datahora")
-    velocidade: int = Field(alias="velocidade")
-    linha: str = Field(alias="linha")
-    datahoraenvio: int = Field(alias="datahoraenvio")
-    datahoraservidor: int = Field(alias="datahoraservidor")
+    ordem: str = Field()
+    latitude: str = Field()
+    longitude: str = Field()
+    datahora: int = Field()
+    velocidade: int = Field()
+    linha: str = Field()
+    datahoraenvio: str = Field()
+    datahoraservidor: str = Field()
 
-class Positions(BaseModel):
-    positions: list[BusPosition]
+BusPositionAdapter = TypeAdapter(list[BusPosition])
 
