@@ -4,9 +4,10 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import pandas as pd
 import schedule
-from findmybus.utils.Connector import Connector
-from findmybus.utils.Models.api.models import BusPosition, BusPositionAdapter
-
+from findmybus.Models.orm import Positions
+from findmybus.database.Connector import Connector
+from findmybus.Models.schemas import BusPosition, BusPositionAdapter
+from findmybus.database import dbActions
 
 class Worker:
     def __init__(self):
@@ -35,22 +36,14 @@ class Worker:
         return data.drop_duplicates(subset=['order']).to_dict(orient="records")
 
 
-# import logging
-# from logging.config import fileConfig
-
-# import os
-# CONFIG_FILE = 'logging.ini'
-# LOG_DIR = 'log'
-# os.makedirs(LOG_DIR, exist_ok=True)
-# log_filename = f"{LOG_DIR}/execution_{datetime.now().strftime('%Y%m%d%H%M%S')}.log"
-
-# fileConfig(CONFIG_FILE, 
-#            defaults={'log_file_path': log_filename})
-# logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     worker = Worker()
     responseAdapter = worker.get_buses_position()
     responseDict = worker.remove_duplicate_dict([obj.model_dump() for obj in responseAdapter])
-    worker.dbConnector.upinsert(responseDict)
+    dbActions.upinsert(worker.dbConnector.get_db_engine(),
+                       Positions,
+                       responseDict,
+                       {"order"}, "order" )
+    positions = dbActions.get_buses_position(worker.dbConnector.get_db_engine(), "457")
     print("Should run just once")
