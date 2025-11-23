@@ -2,9 +2,9 @@ from zoneinfo import ZoneInfo
 import pytest
 from datetime import datetime, timedelta
 from pytest_mock import MockerFixture
-from findmybus.worker import get_buses_position
+from findmybus.utils.worker import get_buses_position
 from polyfactory.factories.pydantic_factory import ModelFactory
-from findmybus.utils.models import Positions
+from findmybus.utils.Models.api.models import Positions
 
 class BusPositionFactory(ModelFactory[Positions]): ...
 
@@ -16,8 +16,9 @@ def fixed_time():
     return datetime(2025, 11, 16, 18, 0, 0, tzinfo=ZoneInfo('America/Sao_Paulo'))
 
 def test_get_buses_position_success(mocker: MockerFixture, fixed_time):
-    mock_get = mocker.patch('findmybus.worker.requests.get')
-    mock_dt  = mocker.patch('findmybus.worker.datetime')
+    # mocked = mocker.patch.object(Example, 'step')
+    mock_get = mocker.patch('findmybus.utils.worker.requests.get')
+    mock_dt  = mocker.patch('findmybus.utils.worker.datetime')
 
     dateTime = fixed_time
     last_minute = dateTime - timedelta(minutes=1)
@@ -43,8 +44,8 @@ def test_get_buses_position_success(mocker: MockerFixture, fixed_time):
 
 def test_get_buses_position_server_error(mocker: MockerFixture, fixed_time):
     with pytest.raises(Exception) as excinfo:
-        mock_get = mocker.patch('findmybus.worker.requests.get')
-        mock_dt  = mocker.patch('findmybus.worker.datetime')
+        mock_get = mocker.patch('findmybus.utils.worker.requests.get')
+        mock_dt  = mocker.patch('findmybus.utils.worker.datetime')
 
         dateTime = fixed_time
         last_minute = dateTime - timedelta(minutes=1)
