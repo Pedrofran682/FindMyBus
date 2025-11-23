@@ -1,15 +1,19 @@
-from pydantic import BaseModel, Field
+from typing import Annotated
+from pydantic import BaseModel, BeforeValidator, Field
 from pydantic import TypeAdapter
+
+def position_to_float(value: str):
+    return float(value.replace(",", "."))
 
 class BusPosition(BaseModel):
     order: str = Field(alias="ordem")
-    latitude: str = Field(alias="latitude")
-    longitude: str = Field(alias="longitude")
-    dateTime: str = Field(alias="datahora")
-    velocity: str = Field(alias="velocidade")
+    latitude: Annotated[float, BeforeValidator(position_to_float)]  = Field(alias="latitude")
+    longitude: Annotated[float, BeforeValidator(position_to_float)] = Field(alias="longitude")
+    dateTime: int = Field(alias="datahora")
+    velocity: int = Field(alias="velocidade")
     line: str = Field(alias="linha")
-    sentDateTime: str = Field(alias="datahoraenvio")
-    serverDateTime: str = Field(alias="datahoraservidor")
+    sentDateTime: int = Field(alias="datahoraenvio")
+    serverDateTime: int = Field(alias="datahoraservidor")
 
 BusPositionAdapter = TypeAdapter(list[BusPosition])
 

@@ -1,3 +1,4 @@
+from sqlalchemy import BigInteger, Column
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import DeclarativeBase
 
@@ -8,10 +9,10 @@ class Positions(Base):
     __tablename__ = "positions"
 
     order: Mapped[str] = mapped_column(primary_key=True)
-    latitude: Mapped[str]
-    longitude: Mapped[str]
-    dateTime: Mapped[str]
-    velocity: Mapped[str]
+    latitude: Mapped[float]
+    longitude: Mapped[float]
+    dateTime = Column(BigInteger)
+    velocity: Mapped[int]
     line: Mapped[str]
-    sentDateTime: Mapped[str]
-    serverDateTime: Mapped[str]
+    sentDateTime = Column(BigInteger)
+    serverDateTime = Column(BigInteger)
