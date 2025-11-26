@@ -2,7 +2,7 @@ from typing import Any
 from sqlalchemy import Engine, Sequence, select
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
-from findmybus.Models.orm import Base, Positions
+from findmybus.Models.orm import Base, Positions, Routes
 
 
 def upinsert(engine: Engine,
@@ -32,3 +32,10 @@ def get_buses_position(engine: Engine,
     with Session(engine) as session:
         return session.scalars(
             select(Positions).where(Positions.line == line)).all()
+    
+
+def get_bus_route(engine: Engine,
+                  line: str) -> Sequence[Routes]:
+    with Session(engine) as session:
+        return session.scalars(
+            select(Routes).where(Routes.line == line)).all()
