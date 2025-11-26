@@ -1,10 +1,11 @@
+from typing import Any
 from pydantic import TypeAdapter, ValidationError
 import requests
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import pandas as pd
 import schedule
-from findmybus.Models.orm import Positions
+from findmybus.Models.orm import Positions, Routes
 from findmybus.database.Connector import Connector
 from findmybus.Models.schemas import BusPosition, BusPositionAdapter, BusesRoutesFeatures
 from findmybus.database import dbActions
@@ -56,6 +57,21 @@ class Worker:
             raise Exception(f"An error happened. Message: {e}")
 
 
+    def clean_bus_route_response(self, response: BusesRoutesFeatures) -> list[dict[str,Any]]:
+        dict_routes = []
+        for feature in response.features:
+            nRoute = Routes(id=feature.id,
+                            consortium=feature.properties.consorcio,
+                            type_route=feature.properties.tipo_rota,
+                            direction=feature.properties.direcao,
+                            destination=feature.properties.destino,
+                            line=feature.properties.servico,
+                            geometry=feature.geometry.model_dump())
+            dict_routes.append({col.name: getattr(nRoute, col.name)
+                                for col in nRoute.__table__.columns})
+        return dict_routes
+
+
 if __name__ == "__main__":
     worker = Worker()
     # responseAdapter = worker.get_buses_position()
@@ -67,5 +83,9 @@ if __name__ == "__main__":
     # positions = dbActions.get_buses_position(worker.dbConnector.get_db_engine(), "457")
 
     responseAdapter = worker.get_buses_routes()
-
+    responseDict = worker.clean_bus_route_response(responseAdapter)
+    dbActions.upinsert(worker.dbConnector.get_db_engine(),
+                       Routes,
+                       responseDict,
+                       {"id"}, "id" )
     print("Should run just once")

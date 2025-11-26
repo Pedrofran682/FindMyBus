@@ -24,7 +24,7 @@ class Routes(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     consortium: Mapped[str]
     type_route: Mapped[str]
-    direction = Mapped[int]
+    direction:  Mapped[int]
     destination: Mapped[str]
     line: Mapped[str]
     geometry = Column(JSONB)
