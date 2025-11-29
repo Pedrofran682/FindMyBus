@@ -3,6 +3,9 @@ import folium
 from streamlit_folium import st_folium
 from findmybus.ui.utils import get_bus_info
 
+display_info = None
+line = None
+fg_group = None
 st.set_page_config(page_title="Cadê meu busão?",
                    layout="wide",
                    initial_sidebar_state="expanded"  )
@@ -12,7 +15,8 @@ with st.sidebar:
     line = st.text_input("Número do ônibus", 
                          placeholder="Ex: 457",
                          max_chars=20)
-    fg_group, display_info = get_bus_info(line)
+    if line:
+        fg_group, display_info = get_bus_info(line)
     if st.button("Buscar"):
         st.rerun()
     if display_info:

@@ -28,3 +28,12 @@ class Routes(Base):
     destination: Mapped[str]
     line: Mapped[str]
     geometry = Column(JSONB)
+
+
+class BusesStations(Base):
+    __tablename__ = "bus_station"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    stop_id: Mapped[str]
+    stop_name:  Mapped[str]
+    geometry = Column(JSONB)

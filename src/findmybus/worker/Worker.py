@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import pandas as pd
 import schedule
-from findmybus.Models.orm import Positions, Routes
+from findmybus.Models.orm import Routes, BusesStations
 from findmybus.database.Connector import Connector
-from findmybus.Models.schemas import BusPosition, BusPositionAdapter, BusesRoutesFeatures
+from findmybus.Models.schemas import BusPosition, BusPositionAdapter, BusesRoutesFeatures, BusStationFeatures
 from findmybus.database import dbActions
 
 class Worker:
@@ -35,6 +35,16 @@ class Worker:
         try:
             response = self.get_request("https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Hosted/Itiner%C3%A1rios_da_rede_de_transporte_p%C3%BAblico_por_%C3%B4nibus_(SPPO)/FeatureServer/1/query?outFields=*&where=1%3D1&f=geojson")
             return BusesRoutesFeatures.model_validate_json(response)
+        except ValidationError as e:
+            raise e
+        except Exception as e:
+            raise Exception(f"An error happened. Message: {e}")
+
+
+    def get_buses_stations(self) -> TypeAdapter[list[BusPosition]]:
+        try:
+            response = self.get_request("https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Hosted/Pontos_de_Parada_da_rede_de_transporte_p%C3%BAblico_por_%C3%B4nibus_(SPPO)/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson")
+            return BusStationFeatures.model_validate_json(response)
         except ValidationError as e:
             raise e
         except Exception as e:
@@ -71,6 +81,17 @@ class Worker:
                                 for col in nRoute.__table__.columns})
         return dict_routes
 
+    
+    def clean_bus_station_response(self, response: BusStationFeatures) -> list[dict[str,Any]]:
+        dict_stations = []
+        for feature in response.features:
+            nBusStation = BusesStations(id=feature.id,
+                            stop_id=feature.properties.stop_id,
+                            stop_name=feature.properties.stop_name,
+                            geometry=feature.geometry.model_dump())
+            dict_stations.append({col.name: getattr(nBusStation, col.name)
+                                for col in nBusStation.__table__.columns})
+        return dict_stations
 
 if __name__ == "__main__":
     worker = Worker()
@@ -82,10 +103,18 @@ if __name__ == "__main__":
     #                    {"order"}, "order" )
     # positions = dbActions.get_buses_position(worker.dbConnector.get_db_engine(), "457")
 
-    responseAdapter = worker.get_buses_routes()
-    responseDict = worker.clean_bus_route_response(responseAdapter)
+    # responseAdapter = worker.get_buses_routes()
+    # responseDict = worker.clean_bus_route_response(responseAdapter)
+    # dbActions.upinsert(worker.dbConnector.get_db_engine(),
+    #                    Routes,
+    #                    responseDict,
+    #                    {"id"}, "id" )
+
+
+    responseAdapter = worker.get_buses_stations()
+    responseDict = worker.clean_bus_station_response(responseAdapter)
     dbActions.upinsert(worker.dbConnector.get_db_engine(),
-                       Routes,
+                       BusesStations,
                        responseDict,
                        {"id"}, "id" )
     print("Should run just once")

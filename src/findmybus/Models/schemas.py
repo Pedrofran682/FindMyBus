@@ -17,10 +17,10 @@ class BusPosition(BaseModel):
 
 BusPositionAdapter = TypeAdapter(list[BusPosition])
 
-class BusesRoutesGeometry(BaseModel):
+class Geometry(BaseModel):
     type: str | None = Field(exclude=True)
     crs: str | None = Field(exclude=True)
-    coordinates: list[list[float]]
+    coordinates: list[list[float]] | list[float]
     
 class BusRoutesProperties(BaseModel):
     fid: int
@@ -36,15 +36,44 @@ class BusRoutesProperties(BaseModel):
     servico: str | None
     SHAPE__Length: float
 
-class BusesRoutesInformation(BaseModel):
-    geometry: BusesRoutesGeometry
+
+class BusStationProperties(BaseModel):
+    fid: int
+    wheelchair_boarding: bool | None
+    zone_id: str | None
+    platform_code: str
+    stop_id: str| None
+    stop_code: str | None
+    stop_url: str | None
+    stop_desc: str | None
+    stop_timezone: str | None
+    stop_name: str | None
+    location_type: int | None
+    parent_station: str
+
+class RoutesFeatureInformation(BaseModel):
+    geometry: Geometry
     id: int
     type: str
     properties : BusRoutesProperties
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+class BusStationFeatureInformation(BaseModel):
+    geometry: Geometry
+    id: int
+    type: str
+    properties : BusStationProperties
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 class BusesRoutesFeatures(BaseModel):
-    features: list[BusesRoutesInformation] 
+    features: list[RoutesFeatureInformation] 
     type: str = Field(exclude=True)
     properties: dict[str, Any] = Field(exclude=True)
+
+class BusStationFeatures(BaseModel):
+    features: list[BusStationFeatureInformation] 
+    type: str = Field(exclude=True)
+    properties: dict[str, Any] = Field(exclude=True)
+
