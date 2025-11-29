@@ -3,8 +3,9 @@ from findmybus.database.Connector import Connector
 import folium
 from sqlalchemy.engine import Engine
 from functools import lru_cache
-from findmybus.database.dbActions import get_bus_station, get_buses_position, get_bus_route
+from findmybus.database.dbActions import get_buses_position, get_bus_route
 from datetime import datetime
+from findmybus.config.Constants import DELTA_REFRESH
 
 
 @lru_cache()
@@ -14,7 +15,7 @@ def _get_marker_symbol(icon_path: str):
         icon_size=(24,24))
 
 
-@st.cache_resource(ttl=600)
+@st.cache_resource(ttl=DELTA_REFRESH * 10)
 def get_db_engine() -> Engine:
     conn = Connector()
     return conn.get_db_engine()
@@ -25,11 +26,9 @@ def get_diff_time_status(bus_unixTime: int) -> str:
     postion_time = unixTime2DateTime(bus_unixTime)
     now = datetime.now()
     delta = (now - postion_time).total_seconds() 
-    if (delta / 60) < 1:
-        return f"Atrasado em {delta}"
-    return f"Atualizado em {delta} s"
+    return f"Atualizado em {delta:.2f} s"
 
-@st.cache_resource(ttl=60)
+@st.cache_resource(ttl=DELTA_REFRESH)
 def get_fg_bus_location(line: str) -> folium.FeatureGroup:
     positions = get_buses_position(get_db_engine(), line)
     marker_group = folium.FeatureGroup(name="BusPosition")
@@ -48,7 +47,7 @@ def get_fg_bus_location(line: str) -> folium.FeatureGroup:
     return marker_group
 
 COLORS = ["green", "red"]
-@st.cache_resource(ttl=(60 * 5))
+@st.cache_resource(ttl=(DELTA_REFRESH * 5))
 def get_fg_bus_route(line: str) -> folium.FeatureGroup:
     routes = get_bus_route(get_db_engine(), line)
     display_info = {"destination":[],
@@ -85,7 +84,7 @@ def get_fg_bus_route(line: str) -> folium.FeatureGroup:
 #     return marker_group
 
 
-@st.cache_resource(ttl=60)
+@st.cache_resource(ttl=DELTA_REFRESH)
 def get_bus_info(line: str):
     # fg_bus_station = get_fg_bus_stations()
     fg_bus_position = get_fg_bus_location(line)

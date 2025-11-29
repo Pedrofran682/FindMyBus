@@ -23,19 +23,9 @@ with st.sidebar:
         for index, destination in enumerate(display_info["destination"]):
             st.badge(destination, color=display_info["color"][index])
 
-
-# TODO: Verify bettler tiles
-# attr = (
-#     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
-#     'contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-# )
-# tiles = "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
-# folium.Map(location=[lat, lon], tiles=tiles, attr=attr, zoom_start=zoom_start)
-
 map = folium.Map(location=[-22.908690, -43.210514],
                  zoom_start=14,
                  tiles="Cartodb Positron")
-
 st_folium(
     map,
     feature_group_to_add=fg_group,
