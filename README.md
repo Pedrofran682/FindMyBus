@@ -1,15 +1,24 @@
-# 🚌 FindMyBus - Docker Environment
+# 🚌 FindMyBus: Where's My Bus? - Docker Environment
 
-This guide outlines how to configure and run the **FindMyBus** application locally using Docker. The architecture consists of a PostgreSQL database, a Worker (data processing), and a UI (Streamlit).
+**FindMyBus** ("Cadê meu busão?") is an application that monitors and displays the **real-time location of buses** in the city of Rio de Janeiro. It uses the [DATA RIO Vehicle Position API](https://www.data.rio/documents/273e65607d5b4c1c81e05be3acb689ce/explore) to help the user find their bus and visualize its route on the map.
 
+This guide outlines how to configure and run the **FindMyBus** application locally using **Docker**. The architecture consists of three main services: a **PostgreSQL** database for data persistence, a **Worker** for data processing and ingestion, and a **UI (Streamlit)** for the user interface.
+
+
+## 🧐 Project Description
+
+**FindMyBus** solves the problem of tracking urban buses.
+
+  * **Data Source:** The system consumes real-time geolocation data from the **DATA RIO Vehicle Position API**.
+  * **Functionality:** The user can search for a specific bus line.
+  * **Visualization:** The application displays the location of active buses on the map and plots the **complete itinerary route** (in both directions) for that line, providing visual context to the user.
 
 ## 📋 Prerequisites
 
-Ensure you have the following installed on your machine:
+Ensure you have **Docker** and **Docker Compose** installed on your machine:
 
   * [Docker](https://docs.docker.com/get-docker/)
   * [Docker Compose](https://docs.docker.com/compose/install/)
-
 
 ## 🚀 How to Run the Project
 
@@ -58,7 +67,6 @@ cp compose.dev.yaml compose.yaml
 Copy-Item compose.dev.yaml compose.yaml
 ```
 
-
 ### 3\. Running the Application
 
 With the `.env` and `compose.yaml` files created, build the images and start the containers:
@@ -69,20 +77,16 @@ docker-compose up --build
 
 This command will:
 
-1.  Pull the Postgres image.
+1.  Pull the **Postgres** image.
 2.  Build the Python image (using multi-stage build optimization).
 3.  Start the database and run initialization scripts (creating users and tables).
-4.  Start the **Worker** (populating the database).
-5.  Start the **UI** (Streamlit).
+4.  Start the **Worker** (which begins populating the database with API data).
+5.  Start the **UI** (**Streamlit**).
 
 
 ## 🌐 Accessing the Application
 
 Once the logs indicate the services are running:
 
-  * **Web Interface (Streamlit):** Access http://localhost:8501
+  * **Web Interface (Streamlit):** Access **http://localhost:8501**
   * **Database (External Access):** Connect via `localhost:5432` using a client like DBeaver or PgAdmin.
-
-
-```
-```
