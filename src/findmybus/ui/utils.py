@@ -15,9 +15,9 @@ def _get_marker_symbol(icon_path: str):
         icon_size=(24,24))
 
 
-@st.cache_resource(ttl=DELTA_REFRESH * 10)
+@st.cache_resource()
 def get_db_engine() -> Engine:
-    conn = Connector()
+    conn = Connector("ui")
     return conn.get_db_engine()
 
 def unixTime2DateTime(unixTime: int): return datetime.fromtimestamp(int(unixTime)/ 1000)
@@ -28,7 +28,7 @@ def get_diff_time_status(bus_unixTime: int) -> str:
     delta = (now - postion_time).total_seconds() 
     return f"Atualizado em {delta:.2f} s"
 
-@st.cache_resource(ttl=DELTA_REFRESH)
+@st.cache_data(ttl=DELTA_REFRESH)
 def get_fg_bus_location(line: str) -> folium.FeatureGroup:
     positions = get_buses_position(get_db_engine(), line)
     marker_group = folium.FeatureGroup(name="BusPosition")
@@ -47,7 +47,7 @@ def get_fg_bus_location(line: str) -> folium.FeatureGroup:
     return marker_group
 
 COLORS = ["green", "red"]
-@st.cache_resource(ttl=(DELTA_REFRESH * 5))
+@st.cache_data(ttl=(DELTA_REFRESH * 5))
 def get_fg_bus_route(line: str) -> folium.FeatureGroup:
     routes = get_bus_route(get_db_engine(), line)
     display_info = {"destination":[],
@@ -84,7 +84,7 @@ def get_fg_bus_route(line: str) -> folium.FeatureGroup:
 #     return marker_group
 
 
-@st.cache_resource(ttl=DELTA_REFRESH)
+@st.cache_data(ttl=DELTA_REFRESH)
 def get_bus_info(line: str):
     # fg_bus_station = get_fg_bus_stations()
     fg_bus_position = get_fg_bus_location(line)
