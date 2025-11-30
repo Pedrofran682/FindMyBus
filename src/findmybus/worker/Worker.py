@@ -13,7 +13,7 @@ log = logging.getLogger()
 
 class Worker:
     def __init__(self):
-        self.dbConnector = Connector()
+        self.dbConnector = Connector("db")
         self.urlBusPosition = "https://dados.mobilidade.rio/gps/sppo"
         self.urlBusRoute = "https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Hosted/Itiner%C3%A1rios_da_rede_de_transporte_p%C3%BAblico_por_%C3%B4nibus_(SPPO)/FeatureServer/1/query?outFields=*&where=1%3D1&f=geojson"
         self.urlBusStation = "https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Hosted/Pontos_de_Parada_da_rede_de_transporte_p%C3%BAblico_por_%C3%B4nibus_(SPPO)/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson"
