@@ -6,7 +6,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ./dev.env
+      - ./.env
     volumes:
       - db-data:/var/lib/postgresql
       - ./sql:/docker-entrypoint-initdb.d
@@ -20,11 +20,10 @@ services:
 
   worker:
     container_name: worker
-    build:
-      context: .
+    image: pmourafr/find-my-bus:v1.0
     command: python  src/findmybus/worker/main.py
     env_file:
-      - ./dev.env
+      - ./.env
     depends_on:
       - db
     networks:
@@ -32,10 +31,9 @@ services:
 
   app_ui:
     container_name: app_ui
-    build:
-      context: .
+    image: pmourafr/find-my-bus:v1.0
     env_file:
-      - ./dev.env
+      - ./.env
     command: streamlit run src/findmybus/ui/landingPage.py
     ports:
       - "8501:8501"
