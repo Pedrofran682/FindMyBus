@@ -1,0 +1,56 @@
+services:
+  db:
+    container_name: postgres_db
+    image: postgres:18
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./dev.env
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 36000s
+      timeout: 60s
+      retries: 5
+    networks:
+      - backend
+
+  worker:
+    container_name: worker
+    build:
+      context: .
+    command: python  src/findmybus/worker/main.py
+    env_file:
+      - ./dev.env
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  app_ui:
+    container_name: app_ui
+    build:
+      context: .
+    env_file:
+      - ./dev.env
+    command: streamlit run src/findmybus/ui/landingPage.py
+    ports:
+      - "8501:8501"
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
